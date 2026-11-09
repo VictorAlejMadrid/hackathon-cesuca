@@ -153,7 +153,10 @@ export default function Home() {
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
             <p className="text-sm text-muted-foreground">Chat</p>
-            <h1 className="text-xl font-semibold">CESUCA Assist</h1>
+            <h1 className="text-xl font-semibold">LIA</h1>
+            <p className="text-xs text-muted-foreground">
+              Leitura inteligente de atendimentos
+            </p>
           </div>
           <Button
             variant="outline"

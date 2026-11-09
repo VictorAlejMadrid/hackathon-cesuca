@@ -1,4 +1,4 @@
-import { getChatModel } from "@/lib/langchain";
+import { getChatModel, SYSTEM_PROMPT } from "@/lib/langchain";
 import {
   consultarBanco,
   consultarBancoInputSchema,
@@ -6,6 +6,7 @@ import {
 import {
   BaseMessage,
   HumanMessage,
+  SystemMessage,
   ToolMessage,
 } from "@langchain/core/messages";
 
@@ -83,9 +84,12 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const firstResponse = await model.invoke(prompt, {
-          signal: request.signal,
-        });
+        const firstResponse = await model.invoke(
+          [new SystemMessage(SYSTEM_PROMPT), new HumanMessage(prompt)],
+          {
+            signal: request.signal,
+          },
+        );
 
         const toolCalls =
           "tool_calls" in firstResponse && Array.isArray(firstResponse.tool_calls)
@@ -107,6 +111,7 @@ export async function POST(request: Request) {
           );
 
           const messages: BaseMessage[] = [
+            new SystemMessage(SYSTEM_PROMPT),
             new HumanMessage(prompt),
             firstResponse,
             ...toolMessages,
