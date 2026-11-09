@@ -1,10 +1,19 @@
 # Hackathon CESUCA — Radar de Saúde do Cliente
 
-Projeto de análise dos dados sintéticos do Hackathon Data Cempro 2026. As planilhas de clientes, atendimentos e uso de serviços foram estruturadas em SQLite e transformadas em um MVP analítico para priorização de Customer Success e Suporte.
+Aplicação Next.js e base analítica construída com os dados sintéticos do Hackathon Data Cempro 2026. As planilhas de clientes, atendimentos e uso de serviços foram estruturadas em SQLite para alimentar um MVP de Customer Success e Suporte.
 
 ## Solução proposta
 
 O **Radar de Saúde do Cliente** reúne sinais de suporte e utilização para mostrar quais clientes precisam de atenção e por quê. O score é transparente, calculado em SQL e serve como regra de triagem — não como previsão de cancelamento ou prova de causalidade.
+
+## Executar a aplicação
+
+```bash
+npm install
+npm run dev
+```
+
+Abra [http://localhost:3000](http://localhost:3000).
 
 ## Estrutura do banco
 
@@ -16,27 +25,20 @@ O **Radar de Saúde do Cliente** reúne sinais de suporte e utilização para mo
 
 O banco pronto está em `output/hackathon_cempro.sqlite` e pode ser aberto diretamente no SQLiteStudio.
 
-## Recriar o banco
+## Recriar e validar o banco
 
 Com Python, pandas e openpyxl instalados:
 
 ```powershell
 python scripts/importar_sqlite.py
-```
-
-O importador valida duplicidades e clientes órfãos, recria o banco, aplica restrições e índices e verifica as chaves estrangeiras.
-
-## Validar o resultado
-
-```powershell
 python scripts/verificar_sqlite.py
 ```
 
-O verificador confere integridade, chaves, acentos, contagens e as consultas de demonstração.
+O importador valida duplicidades e clientes órfãos, aplica restrições e índices e verifica as chaves estrangeiras. O segundo script confere integridade, acentos, contagens e as consultas de demonstração.
 
-## Consultas para a apresentação
+## Consulta principal
 
-As consultas estão em `sql/consultas_demo.sql`. Para abrir o ranking principal:
+As consultas para o pitch estão em `sql/consultas_demo.sql`. O ranking principal pode ser consultado com:
 
 ```sql
 SELECT
@@ -54,6 +56,7 @@ LIMIT 20;
 ## Conteúdo do projeto
 
 ```text
+app/        aplicação web Next.js
 data/       planilhas originais e dicionário de dados
 docs/       proposta, alternativas e roteiro do pitch
 output/     banco SQLite pronto
