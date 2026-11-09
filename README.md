@@ -27,6 +27,12 @@ A configuração do LangChain está em [`lib/langchain.ts`](./lib/langchain.ts) 
 O módulo é marcado como server-only e a chave nunca deve ser prefixada com
 `NEXT_PUBLIC_` nem usada em componentes do cliente.
 
+### Streaming SSE
+
+A rota `POST /stream` recebe `{ "input": "..." }` e transmite a resposta do
+modelo como Server-Sent Events. Cada fragmento vem em
+`data: {"content":"..."}`; o fim do fluxo é sinalizado por `data: [DONE]`.
+
 ## Estrutura do banco
 
 - `clientes`: cadastro mestre, com `cliente_id` como chave primária;
