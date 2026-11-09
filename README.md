@@ -33,11 +33,12 @@ A rota `POST /stream` recebe `{ "input": "..." }` e transmite a resposta do
 modelo como Server-Sent Events. Cada fragmento vem em
 `data: {"content":"..."}`; o fim do fluxo é sinalizado por `data: [DONE]`.
 
-O modelo também possui a tool server-side `consultar_banco`, que consulta o
-SQLite somente por operações agregadas permitidas (`resumo_geral`,
-`resumo_mes`, `top_assuntos` e `clientes_atencao`). A rota nunca executa SQL
-enviado pelo usuário. O caminho do banco pode ser alterado com
-`SQLITE_DB_PATH`; por padrão, usa `output/hackathon_cempro.sqlite`.
+O modelo também possui a tool server-side `consultar_banco`, que permite
+consultas SQL arbitrárias somente de leitura no SQLite. Apenas uma instrução
+`SELECT` ou `WITH` é aceita; comandos de escrita, múltiplas instruções e
+resultados acima de 100 linhas são bloqueados ou limitados. O caminho do banco
+pode ser alterado com `SQLITE_DB_PATH`; por padrão, usa
+`output/hackathon_cempro.sqlite`.
 
 ## Estrutura do banco
 
