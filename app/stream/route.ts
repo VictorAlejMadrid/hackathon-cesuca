@@ -1,4 +1,13 @@
 import { getChatModel } from "@/lib/langchain";
+import {
+  consultarBanco,
+  consultarBancoInputSchema,
+} from "@/lib/sqlite-tool";
+import {
+  BaseMessage,
+  HumanMessage,
+  ToolMessage,
+} from "@langchain/core/messages";
 
 const encoder = new TextEncoder();
 
@@ -74,19 +83,43 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const chunks = await model.stream(prompt, {
+        const firstResponse = await model.invoke(prompt, {
           signal: request.signal,
         });
 
-        for await (const chunk of chunks) {
-          if (request.signal.aborted) {
-            return;
-          }
+        const toolCalls =
+          "tool_calls" in firstResponse && Array.isArray(firstResponse.tool_calls)
+            ? firstResponse.tool_calls
+            : [];
+        let response = firstResponse;
 
-          const content = contentToString(chunk.content);
-          if (content) {
-            controller.enqueue(sseEvent({ content }));
-          }
+        if (toolCalls.length > 0) {
+          const toolMessages = await Promise.all(
+            toolCalls.map(async (call) => {
+              const result = await consultarBanco.invoke(
+                consultarBancoInputSchema.parse(call.args),
+              );
+              return new ToolMessage({
+                content: result,
+                tool_call_id: call.id || call.name,
+              });
+            }),
+          );
+
+          const messages: BaseMessage[] = [
+            new HumanMessage(prompt),
+            firstResponse,
+            ...toolMessages,
+          ];
+          response = await model.invoke(
+            messages,
+            { signal: request.signal },
+          );
+        }
+
+        const content = contentToString(response.content);
+        if (content && !request.signal.aborted) {
+          controller.enqueue(sseEvent({ content }));
         }
 
         if (!request.signal.aborted) {

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { ChatGroq } from "@langchain/groq";
+import { consultarBanco } from "@/lib/sqlite-tool";
 
 const DEFAULT_MODEL = "openai/gpt-oss-20b";
 
@@ -13,9 +14,11 @@ export function getChatModel() {
     );
   }
 
-  return new ChatGroq({
+  const model = new ChatGroq({
     apiKey,
     model: process.env.GROQ_MODEL?.trim() || DEFAULT_MODEL,
     temperature: 0,
   });
+
+  return model.bindTools([consultarBanco]);
 }
