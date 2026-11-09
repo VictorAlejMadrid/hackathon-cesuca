@@ -76,6 +76,18 @@ scripts/    importador e verificador
 sql/        consultas para o MVP e demonstração
 ```
 
+## Agentes do hackathon
+
+O pacote em `agentes-hackathon` foi integrado à raiz para funcionar com Claude Code:
+
+- `.claude/agents/`: 7 agentes especializados;
+- `CLAUDE.md`: contexto e regras permanentes do projeto;
+- `dados/`: cópia das planilhas esperada pelos agentes;
+- `docs/01-projeto-perguntas.md` a `docs/04-plano-e-pitch.md`: análise, arquitetura e plano de execução;
+- `docs/agentes-hackathon.md`: instruções originais do pacote.
+
+O fluxo recomendado começa pelo agente `orquestrador`, que delega ETL, API, frontend, chatbot, QA e documentação.
+
 ## Limitações
 
 - dados fictícios;
