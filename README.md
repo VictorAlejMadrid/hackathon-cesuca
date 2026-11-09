@@ -15,6 +15,18 @@ npm run dev
 
 Abra [http://localhost:3000](http://localhost:3000).
 
+## LangChain no servidor
+
+A configuração inicial do LangChain está em [`lib/langchain.ts`](./lib/langchain.ts) e usa
+`ChatOpenAI`. Para habilitá-la:
+
+1. Copie `.env.example` para `.env.local`;
+2. Preencha `OPENAI_API_KEY`;
+3. Ajuste `OPENAI_MODEL` se necessário.
+
+O módulo é marcado como server-only e a chave nunca deve ser prefixada com
+`NEXT_PUBLIC_` nem usada em componentes do cliente.
+
 ## Estrutura do banco
 
 - `clientes`: cadastro mestre, com `cliente_id` como chave primária;
