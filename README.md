@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hackathon CESUCA — Radar de Saúde do Cliente
 
-## Getting Started
+Aplicação Next.js e base analítica construída com os dados sintéticos do Hackathon Data Cempro 2026. As planilhas de clientes, atendimentos e uso de serviços foram estruturadas em SQLite para alimentar um MVP de Customer Success e Suporte.
 
-First, run the development server:
+## Solução proposta
+
+O **Radar de Saúde do Cliente** reúne sinais de suporte e utilização para mostrar quais clientes precisam de atenção e por quê. O score é transparente, calculado em SQL e serve como regra de triagem — não como previsão de cancelamento ou prova de causalidade.
+
+## Executar a aplicação
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura do banco
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `clientes`: cadastro mestre, com `cliente_id` como chave primária;
+- `atendimentos`: chamados ligados a clientes por chave estrangeira;
+- `uso_servicos`: uso mensal por cliente e serviço, com chave composta;
+- `vw_resumo_servico`: adoção, intensidade de uso e suporte por serviço;
+- `vw_saude_cliente`: fila explicável de priorização de clientes.
 
-## Learn More
+O banco pronto está em `output/hackathon_cempro.sqlite` e pode ser aberto diretamente no SQLiteStudio.
 
-To learn more about Next.js, take a look at the following resources:
+## Recriar e validar o banco
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Com Python, pandas e openpyxl instalados:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```powershell
+python scripts/importar_sqlite.py
+python scripts/verificar_sqlite.py
+```
 
-## Deploy on Vercel
+O importador valida duplicidades e clientes órfãos, aplica restrições e índices e verifica as chaves estrangeiras. O segundo script confere integridade, acentos, contagens e as consultas de demonstração.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Consulta principal
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+As consultas para o pitch estão em `sql/consultas_demo.sql`. O ranking principal pode ser consultado com:
+
+```sql
+SELECT
+    cliente_id,
+    nome_ficticio,
+    score_atencao,
+    faixa_atencao,
+    atendimentos_pendentes,
+    satisfacao_media
+FROM vw_saude_cliente
+ORDER BY score_atencao DESC
+LIMIT 20;
+```
+
+## Conteúdo do projeto
+
+```text
+app/        aplicação web Next.js
+data/       planilhas originais e dicionário de dados
+docs/       proposta, alternativas e roteiro do pitch
+output/     banco SQLite pronto
+scripts/    importador e verificador
+sql/        consultas para o MVP e demonstração
+```
+
+## Limitações
+
+- dados fictícios;
+- janela de julho a setembro de 2026;
+- correlação não implica causalidade;
+- “operações por acesso” mede intensidade e pode ser maior que 1;
+- o score precisa ser calibrado antes de uso em um negócio real.
