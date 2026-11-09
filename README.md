@@ -17,12 +17,12 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## LangChain no servidor
 
-A configuração inicial do LangChain está em [`lib/langchain.ts`](./lib/langchain.ts) e usa
-`ChatOpenAI`. Para habilitá-la:
+A configuração do LangChain está em [`lib/langchain.ts`](./lib/langchain.ts) e usa
+`ChatGroq`. Para habilitá-la:
 
 1. Copie `.env.example` para `.env.local`;
-2. Preencha `OPENAI_API_KEY`;
-3. Ajuste `OPENAI_MODEL` se necessário.
+2. Preencha `GROQ_API_KEY` com uma chave criada no [console da Groq](https://console.groq.com/keys);
+3. Ajuste `GROQ_MODEL` se necessário. O padrão é `openai/gpt-oss-20b`.
 
 O módulo é marcado como server-only e a chave nunca deve ser prefixada com
 `NEXT_PUBLIC_` nem usada em componentes do cliente.

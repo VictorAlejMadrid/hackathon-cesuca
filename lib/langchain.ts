@@ -1,21 +1,21 @@
 import "server-only";
 
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGroq } from "@langchain/groq";
 
-const DEFAULT_MODEL = "gpt-4o-mini";
+const DEFAULT_MODEL = "openai/gpt-oss-20b";
 
 export function getChatModel() {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const apiKey = process.env.GROQ_API_KEY?.trim();
 
   if (!apiKey) {
     throw new Error(
-      "OPENAI_API_KEY não está configurada. Defina essa variável no ambiente do servidor.",
+      "GROQ_API_KEY não está configurada. Defina essa variável no ambiente do servidor.",
     );
   }
 
-  return new ChatOpenAI({
+  return new ChatGroq({
     apiKey,
-    model: process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL,
+    model: process.env.GROQ_MODEL?.trim() || DEFAULT_MODEL,
     temperature: 0,
   });
 }
