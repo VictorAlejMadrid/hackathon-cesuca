@@ -1,16 +1,15 @@
 'use client';
 
 import { FormEvent, PointerEvent, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
   AlertTriangle,
   BarChart3,
   Bell,
-  Bot,
   Clock3,
   Database,
-  Gauge,
   GripVertical,
   Headphones,
   LayoutDashboard,
@@ -301,9 +300,7 @@ export default function Home() {
         >
           <div className="flex items-center justify-between px-2 py-3">
             <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-                <Gauge className="size-5" />
-              </div>
+              <Image src="/lia-logo.png" alt="LIA" width={36} height={36} className="size-9 object-contain" priority />
               <div>
                 <p className="font-semibold tracking-tight">LIA</p>
                 <p className="text-[11px] text-slate-400">Data Cempro 2026</p>
@@ -639,9 +636,7 @@ export default function Home() {
               <GripVertical className="size-4 text-slate-400 transition-colors hover:text-blue-600" />
             </div>
             <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-                <Bot className="size-5" />
-              </div>
+              <Image src="/lia-logo.png" alt="" width={36} height={36} className="size-9 object-contain" />
               <div className="flex-1">
                 <h2 className="font-semibold">LIA</h2>
                 <p className="text-[11px] text-slate-400">IA com fallback offline · fontes do painel</p>
