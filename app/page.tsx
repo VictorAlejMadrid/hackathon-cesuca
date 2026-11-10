@@ -332,8 +332,6 @@ export default function Home() {
               Base validada
             </div>
             100 clientes · 300 chamados
-            <br />
-            Dados fictícios, jul–set/2026
           </div>
         </aside>
 
@@ -609,7 +607,7 @@ export default function Home() {
             </section>
 
             <footer className="border-t border-slate-200 py-5 text-xs text-slate-400">
-              Dados sintéticos · Jul–Set 2026 · Correlação não implica causalidade · Números calculados a partir do SQLite
+              Jul–Set 2026 · Correlação não implica causalidade · Números calculados a partir do SQLite
             </footer>
           </div>
         </div>
