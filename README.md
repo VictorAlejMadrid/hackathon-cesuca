@@ -86,7 +86,7 @@ respostas de fallback no modo offline. A chave é consumida apenas no servidor.
 - `GET /api/dashboard`: retorna os dados agregados do painel;
 - `POST /stream`: recebe `{ "input": "..." }` e transmite a resposta do
   assistente por Server-Sent Events;
-- `GET /`: interface web do Radar do Gestor.
+- `GET /`: interface web do LIA.
 
 O assistente consulta o SQLite somente com instruções `SELECT` ou `WITH`.
 Comandos de escrita, múltiplas instruções e resultados acima de 100 linhas são
