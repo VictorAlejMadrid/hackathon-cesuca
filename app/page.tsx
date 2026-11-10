@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, PointerEvent, useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -11,6 +11,7 @@ import {
   Clock3,
   Database,
   Gauge,
+  GripVertical,
   Headphones,
   LayoutDashboard,
   Menu,
@@ -33,8 +34,25 @@ type Message = { role: 'user' | 'assistant'; content: string; offline?: boolean 
 
 function AssistantMessage({ content }: { content: string }) {
   return (
-    <div className="space-y-2 [&_a]:font-medium [&_a]:text-blue-700 [&_a]:underline [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_li]:leading-6 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:leading-6 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-slate-900 [&_pre]:p-3 [&_pre]:text-xs [&_pre]:text-slate-100 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_strong]:font-semibold [&_table]:w-full [&_table]:text-xs [&_td]:border [&_td]:border-slate-200 [&_td]:p-1.5 [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-50 [&_th]:p-1.5 [&_ul]:list-disc [&_ul]:pl-5">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+    <div className="space-y-2 [&_a]:font-medium [&_a]:text-blue-700 [&_a]:underline [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_h1]:text-base [&_h1]:font-semibold [&_h2]:text-sm [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_li]:leading-6 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:leading-6 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-slate-900 [&_pre]:p-3 [&_pre]:text-xs [&_pre]:text-slate-100 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-xs [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          table: ({ children }) => (
+            <div className="my-2 overflow-x-auto rounded-lg border border-slate-200">
+              <table className="min-w-full border-collapse text-xs">{children}</table>
+            </div>
+          ),
+          td: ({ children }) => <td className="border-t border-slate-200 px-2 py-1.5 align-top">{children}</td>,
+          th: ({ children }) => (
+            <th className="whitespace-nowrap border-b border-slate-200 bg-slate-50 px-2 py-1.5 text-left font-semibold text-slate-600">
+              {children}
+            </th>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -80,6 +98,8 @@ export default function Home() {
   const [mobileNav, setMobileNav] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [chatWidth, setChatWidth] = useState(390);
+  const [resizingChat, setResizingChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -87,6 +107,23 @@ export default function Home() {
         'Olá! Eu sou a LIA. Respondo usando apenas os números calculados do painel. Pergunte sobre prioridades, serviços, assuntos ou clientes.',
     },
   ]);
+
+  useEffect(() => {
+    const stopResizing = () => setResizingChat(false);
+    window.addEventListener('pointerup', stopResizing);
+    return () => window.removeEventListener('pointerup', stopResizing);
+  }, []);
+
+  function resizeChat(event: PointerEvent<HTMLDivElement>) {
+    if (!resizingChat) return;
+    const maxWidth = Math.min(720, window.innerWidth - 24);
+    setChatWidth(Math.min(maxWidth, Math.max(320, window.innerWidth - event.clientX)));
+  }
+
+  function adjustChatWidth(amount: number) {
+    const maxWidth = Math.min(720, window.innerWidth - 24);
+    setChatWidth((current) => Math.min(maxWidth, Math.max(320, current + amount)));
+  }
 
   useEffect(() => {
     let active = true;
@@ -578,7 +615,31 @@ export default function Home() {
         </div>
 
         {chatOpen ? (
-          <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[390px] flex-col border-l border-slate-200 bg-white shadow-[-18px_0_55px_rgba(15,23,42,0.12)] sm:w-[390px]">
+          <aside
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-none flex-col border-l border-slate-200 bg-white shadow-[-18px_0_55px_rgba(15,23,42,0.12)]"
+            style={{ width: `min(100vw, ${chatWidth}px)` }}
+          >
+            <div
+              className="absolute inset-y-0 left-0 z-10 hidden w-3 -translate-x-1/2 cursor-ew-resize items-center justify-center sm:flex"
+              onPointerDown={(event) => {
+                event.currentTarget.setPointerCapture(event.pointerId);
+                setResizingChat(true);
+              }}
+              onPointerMove={resizeChat}
+              role="separator"
+              aria-label="Redimensionar largura do chat"
+              aria-orientation="vertical"
+              aria-valuemin={320}
+              aria-valuemax={720}
+              aria-valuenow={chatWidth}
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowLeft') adjustChatWidth(24);
+                if (event.key === 'ArrowRight') adjustChatWidth(-24);
+              }}
+            >
+              <GripVertical className="size-4 text-slate-400 transition-colors hover:text-blue-600" />
+            </div>
             <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-4">
               <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
                 <Bot className="size-5" />
