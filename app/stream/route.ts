@@ -33,6 +33,7 @@ function contentToString(content: unknown) {
 
 export async function POST(request: Request) {
   let input: unknown;
+  let context = "";
 
   try {
     const body: unknown = await request.json();
@@ -46,6 +47,14 @@ export async function POST(request: Request) {
           ? body
           : body.input
         : undefined;
+    if (
+      body !== null &&
+      typeof body === "object" &&
+      "context" in body &&
+      typeof body.context === "string"
+    ) {
+      context = body.context.slice(0, 12000);
+    }
   } catch {
     return Response.json(
       { error: "O corpo da requisição deve ser um JSON válido." },
@@ -74,9 +83,24 @@ export async function POST(request: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        const chunks = await model.stream(prompt, {
-          signal: request.signal,
-        });
+        const systemPrompt = `Você é o assistente analítico do Radar do Gestor.
+Responda em português do Brasil, de forma direta, com a conclusão primeiro.
+Use exclusivamente os números do CONTEXTO abaixo. Nunca invente ou recalcule dados ausentes.
+Não afirme causalidade: use termos como "associado", "coincide" ou "sugere investigar".
+Quando houver comparação, mencione os valores e a população quando disponível.
+Avise que setembro de 2026 contém dados somente até 29/09 quando a resposta envolver esse mês.
+Se a pergunta não puder ser respondida pelos dados, diga claramente que a informação não existe.
+
+CONTEXTO CALCULADO PELO SQLITE:
+${context || "Nenhum contexto fornecido."}`;
+
+        const chunks = await model.stream(
+          [
+            ["system", systemPrompt],
+            ["human", prompt],
+          ],
+          { signal: request.signal },
+        );
 
         for await (const chunk of chunks) {
           if (request.signal.aborted) {

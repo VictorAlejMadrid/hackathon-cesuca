@@ -1,0 +1,459 @@
+{
+  "monthly": [
+    {
+      "mes": "2026-07",
+      "chamados": 106,
+      "pendentes": 15,
+      "tempo_medio": 109.2,
+      "satisfacao": 3.98
+    },
+    {
+      "mes": "2026-08",
+      "chamados": 108,
+      "pendentes": 9,
+      "tempo_medio": 120.2,
+      "satisfacao": 3.61
+    },
+    {
+      "mes": "2026-09",
+      "chamados": 86,
+      "pendentes": 16,
+      "tempo_medio": 112.9,
+      "satisfacao": 3.86
+    }
+  ],
+  "usageMonthly": [
+    {
+      "mes": "2026-07",
+      "acessos": 3629,
+      "operacoes": 1824
+    },
+    {
+      "mes": "2026-08",
+      "acessos": 3671,
+      "operacoes": 1712
+    },
+    {
+      "mes": "2026-09",
+      "acessos": 3483,
+      "operacoes": 1805
+    }
+  ],
+  "services": [
+    {
+      "servico": "Portal Web",
+      "clientes_ativos": 65,
+      "acessos": 2924,
+      "operacoes": 1582,
+      "taxa_operacoes_por_acesso": 0.541,
+      "atendimentos": 82,
+      "pendentes": 10,
+      "tempo_medio_resolucao_min": 117.3,
+      "satisfacao_media": 3.6
+    },
+    {
+      "servico": "Sistema Beta",
+      "clientes_ativos": 53,
+      "acessos": 2741,
+      "operacoes": 1245,
+      "taxa_operacoes_por_acesso": 0.4542,
+      "atendimentos": 67,
+      "pendentes": 6,
+      "tempo_medio_resolucao_min": 115.7,
+      "satisfacao_media": 3.77
+    },
+    {
+      "servico": "Sistema Alfa",
+      "clientes_ativos": 56,
+      "acessos": 2639,
+      "operacoes": 1188,
+      "taxa_operacoes_por_acesso": 0.4502,
+      "atendimentos": 71,
+      "pendentes": 13,
+      "tempo_medio_resolucao_min": 107.0,
+      "satisfacao_media": 4.12
+    },
+    {
+      "servico": "Aplicativo Mobile",
+      "clientes_ativos": 57,
+      "acessos": 2479,
+      "operacoes": 1326,
+      "taxa_operacoes_por_acesso": 0.5349,
+      "atendimentos": 80,
+      "pendentes": 11,
+      "tempo_medio_resolucao_min": 116.6,
+      "satisfacao_media": 3.78
+    }
+  ],
+  "subjects": [
+    {
+      "assunto": "Dúvida de utilização",
+      "chamados": 51,
+      "pendentes": 9,
+      "tempo_medio": 114.8,
+      "pct_notas_baixas": 14.3
+    },
+    {
+      "assunto": "Acesso e senha",
+      "chamados": 40,
+      "pendentes": 2,
+      "tempo_medio": 116.3,
+      "pct_notas_baixas": 10.5
+    },
+    {
+      "assunto": "Lentidão",
+      "chamados": 37,
+      "pendentes": 7,
+      "tempo_medio": 107.5,
+      "pct_notas_baixas": 30.0
+    },
+    {
+      "assunto": "Atualização",
+      "chamados": 37,
+      "pendentes": 3,
+      "tempo_medio": 98.6,
+      "pct_notas_baixas": 8.8
+    },
+    {
+      "assunto": "Solicitação de melhoria",
+      "chamados": 36,
+      "pendentes": 9,
+      "tempo_medio": 101.3,
+      "pct_notas_baixas": 7.4
+    },
+    {
+      "assunto": "Relatório",
+      "chamados": 35,
+      "pendentes": 1,
+      "tempo_medio": 99.1,
+      "pct_notas_baixas": 26.5
+    },
+    {
+      "assunto": "Instalação",
+      "chamados": 32,
+      "pendentes": 5,
+      "tempo_medio": 100.0,
+      "pct_notas_baixas": 11.1
+    },
+    {
+      "assunto": "Erro no sistema",
+      "chamados": 32,
+      "pendentes": 4,
+      "tempo_medio": 183.1,
+      "pct_notas_baixas": 10.7
+    }
+  ],
+  "channels": [
+    {
+      "canal": "WhatsApp",
+      "chamados": 80,
+      "pendentes": 7,
+      "tempo_medio": 111.7,
+      "satisfacao": 3.77
+    },
+    {
+      "canal": "E-mail",
+      "chamados": 78,
+      "pendentes": 9,
+      "tempo_medio": 117.1,
+      "satisfacao": 3.81
+    },
+    {
+      "canal": "Portal",
+      "chamados": 77,
+      "pendentes": 12,
+      "tempo_medio": 105.8,
+      "satisfacao": 4.0
+    },
+    {
+      "canal": "Telefone",
+      "chamados": 65,
+      "pendentes": 12,
+      "tempo_medio": 125.3,
+      "satisfacao": 3.6
+    }
+  ],
+  "priorities": [
+    {
+      "prioridade": "Alta",
+      "chamados": 89,
+      "pendentes": 13,
+      "tempo_medio": 129.8,
+      "satisfacao": 3.87
+    },
+    {
+      "prioridade": "Normal",
+      "chamados": 105,
+      "pendentes": 15,
+      "tempo_medio": 114.0,
+      "satisfacao": 3.77
+    },
+    {
+      "prioridade": "Baixa",
+      "chamados": 106,
+      "pendentes": 12,
+      "tempo_medio": 102.3,
+      "satisfacao": 3.79
+    }
+  ],
+  "clientsBySector": [
+    {
+      "setor": "Serviços",
+      "clientes": 29
+    },
+    {
+      "setor": "Indústria",
+      "clientes": 29
+    },
+    {
+      "setor": "Tecnologia",
+      "clientes": 25
+    },
+    {
+      "setor": "Comércio",
+      "clientes": 17
+    }
+  ],
+  "clientsBySize": [
+    {
+      "porte": "Média",
+      "clientes": 36
+    },
+    {
+      "porte": "Micro",
+      "clientes": 35
+    },
+    {
+      "porte": "Pequena",
+      "clientes": 29
+    }
+  ],
+  "clientsByCity": [
+    {
+      "cidade": "Novo Hamburgo",
+      "clientes": 28
+    },
+    {
+      "cidade": "Gravataí",
+      "clientes": 23
+    },
+    {
+      "cidade": "Cachoeirinha",
+      "clientes": 18
+    },
+    {
+      "cidade": "Canoas",
+      "clientes": 17
+    },
+    {
+      "cidade": "Porto Alegre",
+      "clientes": 14
+    }
+  ],
+  "risk": [
+    {
+      "faixa_atencao": "Crítico",
+      "clientes": 5
+    },
+    {
+      "faixa_atencao": "Atenção",
+      "clientes": 32
+    },
+    {
+      "faixa_atencao": "Estável",
+      "clientes": 63
+    }
+  ],
+  "topRisk": [
+    {
+      "cliente_id": "C048",
+      "nome_ficticio": "Empresa Exemplo 048",
+      "porte": "Média",
+      "setor": "Serviços",
+      "cidade": "Porto Alegre",
+      "score_atencao": 74,
+      "faixa_atencao": "Crítico",
+      "atendimentos_pendentes": 2,
+      "satisfacao_media": 2.6,
+      "tempo_medio_resolucao_min": 128.6,
+      "taxa_operacoes_por_acesso": 1.1351,
+      "acessos_primeiro_mes": 9,
+      "acessos_ultimo_mes": 36
+    },
+    {
+      "cliente_id": "C097",
+      "nome_ficticio": "Empresa Exemplo 097",
+      "porte": "Pequena",
+      "setor": "Tecnologia",
+      "cidade": "Novo Hamburgo",
+      "score_atencao": 64,
+      "faixa_atencao": "Crítico",
+      "atendimentos_pendentes": 2,
+      "satisfacao_media": 3.0,
+      "tempo_medio_resolucao_min": 141.4,
+      "taxa_operacoes_por_acesso": 0.3529,
+      "acessos_primeiro_mes": 48,
+      "acessos_ultimo_mes": 58
+    },
+    {
+      "cliente_id": "C018",
+      "nome_ficticio": "Empresa Exemplo 018",
+      "porte": "Micro",
+      "setor": "Serviços",
+      "cidade": "Novo Hamburgo",
+      "score_atencao": 59,
+      "faixa_atencao": "Crítico",
+      "atendimentos_pendentes": 0,
+      "satisfacao_media": 2.8,
+      "tempo_medio_resolucao_min": 78.8,
+      "taxa_operacoes_por_acesso": 0.3778,
+      "acessos_primeiro_mes": 60,
+      "acessos_ultimo_mes": 21
+    },
+    {
+      "cliente_id": "C022",
+      "nome_ficticio": "Empresa Exemplo 022",
+      "porte": "Micro",
+      "setor": "Tecnologia",
+      "cidade": "Gravataí",
+      "score_atencao": 51,
+      "faixa_atencao": "Crítico",
+      "atendimentos_pendentes": 1,
+      "satisfacao_media": 2.67,
+      "tempo_medio_resolucao_min": 145.3,
+      "taxa_operacoes_por_acesso": 0.9118,
+      "acessos_primeiro_mes": 40,
+      "acessos_ultimo_mes": 28
+    },
+    {
+      "cliente_id": "C071",
+      "nome_ficticio": "Empresa Exemplo 071",
+      "porte": "Micro",
+      "setor": "Comércio",
+      "cidade": "Cachoeirinha",
+      "score_atencao": 51,
+      "faixa_atencao": "Crítico",
+      "atendimentos_pendentes": 1,
+      "satisfacao_media": 1.5,
+      "tempo_medio_resolucao_min": 136.0,
+      "taxa_operacoes_por_acesso": 0.9844,
+      "acessos_primeiro_mes": 8,
+      "acessos_ultimo_mes": 42
+    },
+    {
+      "cliente_id": "C028",
+      "nome_ficticio": "Empresa Exemplo 028",
+      "porte": "Média",
+      "setor": "Tecnologia",
+      "cidade": "Cachoeirinha",
+      "score_atencao": 48,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 1,
+      "satisfacao_media": 3.83,
+      "tempo_medio_resolucao_min": 185.3,
+      "taxa_operacoes_por_acesso": 0.4909,
+      "acessos_primeiro_mes": 58,
+      "acessos_ultimo_mes": 20
+    },
+    {
+      "cliente_id": "C035",
+      "nome_ficticio": "Empresa Exemplo 035",
+      "porte": "Pequena",
+      "setor": "Serviços",
+      "cidade": "Cachoeirinha",
+      "score_atencao": 48,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 1,
+      "satisfacao_media": 4.0,
+      "tempo_medio_resolucao_min": 189.3,
+      "taxa_operacoes_por_acesso": 0.4381,
+      "acessos_primeiro_mes": 63,
+      "acessos_ultimo_mes": 12
+    },
+    {
+      "cliente_id": "C070",
+      "nome_ficticio": "Empresa Exemplo 070",
+      "porte": "Micro",
+      "setor": "Indústria",
+      "cidade": "Canoas",
+      "score_atencao": 46,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 2,
+      "satisfacao_media": 4.17,
+      "tempo_medio_resolucao_min": 108.5,
+      "taxa_operacoes_por_acesso": 0.3397,
+      "acessos_primeiro_mes": 59,
+      "acessos_ultimo_mes": 75
+    },
+    {
+      "cliente_id": "C037",
+      "nome_ficticio": "Empresa Exemplo 037",
+      "porte": "Média",
+      "setor": "Comércio",
+      "cidade": "Novo Hamburgo",
+      "score_atencao": 45,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 3,
+      "satisfacao_media": 4.0,
+      "tempo_medio_resolucao_min": 127.5,
+      "taxa_operacoes_por_acesso": 0.4321,
+      "acessos_primeiro_mes": 28,
+      "acessos_ultimo_mes": 45
+    },
+    {
+      "cliente_id": "C089",
+      "nome_ficticio": "Empresa Exemplo 089",
+      "porte": "Micro",
+      "setor": "Indústria",
+      "cidade": "Gravataí",
+      "score_atencao": 44,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 0,
+      "satisfacao_media": 2.67,
+      "tempo_medio_resolucao_min": 72.0,
+      "taxa_operacoes_por_acesso": 0.3262,
+      "acessos_primeiro_mes": 23,
+      "acessos_ultimo_mes": 55
+    },
+    {
+      "cliente_id": "C026",
+      "nome_ficticio": "Empresa Exemplo 026",
+      "porte": "Média",
+      "setor": "Comércio",
+      "cidade": "Novo Hamburgo",
+      "score_atencao": 43,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 0,
+      "satisfacao_media": 2.5,
+      "tempo_medio_resolucao_min": 44.5,
+      "taxa_operacoes_por_acesso": 0.4706,
+      "acessos_primeiro_mes": 62,
+      "acessos_ultimo_mes": 10
+    },
+    {
+      "cliente_id": "C034",
+      "nome_ficticio": "Empresa Exemplo 034",
+      "porte": "Pequena",
+      "setor": "Indústria",
+      "cidade": "Gravataí",
+      "score_atencao": 43,
+      "faixa_atencao": "Atenção",
+      "atendimentos_pendentes": 0,
+      "satisfacao_media": 1.0,
+      "tempo_medio_resolucao_min": 46.0,
+      "taxa_operacoes_por_acesso": 0.6952,
+      "acessos_primeiro_mes": 36,
+      "acessos_ultimo_mes": 17
+    }
+  ],
+  "kpis": {
+    "chamados": 300,
+    "pendentes": 40,
+    "tempo_medio": 114.4,
+    "satisfacao": 3.8
+  },
+  "usage": {
+    "acessos": 10783,
+    "operacoes": 5341
+  }
+}
