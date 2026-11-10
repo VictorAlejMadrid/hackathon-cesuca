@@ -84,7 +84,7 @@ export default function Home() {
     {
       role: 'assistant',
       content:
-        'Olá! Eu sou o assistente do Radar. Respondo usando apenas os números calculados do painel. Pergunte sobre prioridades, serviços, assuntos ou clientes.',
+        'Olá! Eu sou a LIA. Respondo usando apenas os números calculados do painel. Pergunte sobre prioridades, serviços, assuntos ou clientes.',
     },
   ]);
 
@@ -584,7 +584,7 @@ export default function Home() {
                 <Bot className="size-5" />
               </div>
               <div className="flex-1">
-                <h2 className="font-semibold">Assistente do Radar</h2>
+                <h2 className="font-semibold">LIA</h2>
                 <p className="text-[11px] text-slate-400">IA com fallback offline · fontes do painel</p>
               </div>
               <button onClick={() => setChatOpen(false)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Fechar assistente">
