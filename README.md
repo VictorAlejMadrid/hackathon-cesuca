@@ -33,6 +33,17 @@ A rota `POST /stream` recebe `{ "input": "..." }` e transmite a resposta do
 modelo como Server-Sent Events. Cada fragmento vem em
 `data: {"content":"..."}`; o fim do fluxo é sinalizado por `data: [DONE]`.
 
+O agente **LIA — Leitura inteligente de atendimentos** também possui a tool
+server-side `consultar_banco`, que permite
+consultas SQL arbitrárias somente de leitura no SQLite. Apenas uma instrução
+`SELECT` ou `WITH` é aceita; comandos de escrita, múltiplas instruções e
+resultados acima de 100 linhas são bloqueados ou limitados. O caminho do banco
+pode ser alterado com `SQLITE_DB_PATH`; por padrão, usa
+`output/hackathon_cempro.sqlite`.
+
+O agente recebe um prompt de sistema que orienta a consultar o banco conforme o
+pedido do usuário, não inventar dados e evitar afirmações de causalidade.
+
 ## Estrutura do banco
 
 - `clientes`: cadastro mestre, com `cliente_id` como chave primária;
