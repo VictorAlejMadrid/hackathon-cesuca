@@ -183,11 +183,12 @@ export function HorizontalBars({
 
 export function DonutChart({ data }: { data: { label: string; value: number; color: string }[] }) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  let cursor = 0;
-  const gradient = data.map((item) => {
-    const start = cursor;
-    cursor += (item.value / total) * 100;
-    return `${item.color} ${start}% ${cursor}%`;
+  const gradient = data.map((item, index) => {
+    const start = data
+      .slice(0, index)
+      .reduce((sum, previous) => sum + (previous.value / total) * 100, 0);
+    const end = start + (item.value / total) * 100;
+    return `${item.color} ${start}% ${end}%`;
   }).join(", ");
 
   return (
