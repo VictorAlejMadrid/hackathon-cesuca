@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
@@ -23,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 
-import dashboardData from "@/lib/dashboard-data.json";
+import type { DashboardData } from "@/types/dashboard";
 import {
   DonutChart,
   GroupedBars,
@@ -44,19 +44,6 @@ const monthLabels: Record<Month, string> = {
   "2026-08": "Ago",
   "2026-09": "Set",
 };
-
-const compactContext = JSON.stringify({
-  kpis: dashboardData.kpis,
-  uso: dashboardData.usage,
-  mensal: dashboardData.monthly,
-  usoMensal: dashboardData.usageMonthly,
-  servicos: dashboardData.services,
-  assuntos: dashboardData.subjects,
-  prioridades: dashboardData.priorities,
-  canais: dashboardData.channels,
-  risco: dashboardData.risk,
-  clientesPrioritarios: dashboardData.topRisk.slice(0, 8),
-});
 
 function offlineAnswer(question: string) {
   const q = question.toLowerCase();
@@ -83,6 +70,8 @@ function Card({ children, className = "" }: { children: React.ReactNode; classNa
 }
 
 export default function Home() {
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [month, setMonth] = useState<Month>("all");
   const [chatOpen, setChatOpen] = useState(true);
   const [mobileNav, setMobileNav] = useState(false);
@@ -95,25 +84,104 @@ export default function Home() {
     },
   ]);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadDashboard() {
+      try {
+        const response = await fetch("/api/dashboard", { cache: "no-store" });
+        const payload: unknown = await response.json();
+
+        if (!response.ok) {
+          const message =
+            payload !== null &&
+            typeof payload === "object" &&
+            "error" in payload &&
+            typeof payload.error === "string"
+              ? payload.error
+              : "Não foi possível carregar os dados do painel.";
+          throw new Error(message);
+        }
+
+        if (active) {
+          setDashboardData(payload as DashboardData);
+        }
+      } catch (error) {
+        if (active) {
+          setDashboardError(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível carregar os dados do painel.",
+          );
+        }
+      }
+    }
+
+    void loadDashboard();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const compactContext = useMemo(
+    () =>
+      dashboardData
+        ? JSON.stringify({
+            kpis: dashboardData.kpis,
+            uso: dashboardData.usage,
+            mensal: dashboardData.monthly,
+            usoMensal: dashboardData.usageMonthly,
+            servicos: dashboardData.services,
+            assuntos: dashboardData.subjects,
+            prioridades: dashboardData.priorities,
+            canais: dashboardData.channels,
+            risco: dashboardData.risk,
+            clientesPrioritarios: dashboardData.topRisk.slice(0, 8),
+          })
+        : "",
+    [dashboardData],
+  );
+
   const selected = useMemo(() => {
+    if (!dashboardData) return null;
     if (month === "all") {
       return {
         chamados: dashboardData.kpis.chamados,
         pendentes: dashboardData.kpis.pendentes,
-        tempo_medio: dashboardData.kpis.tempo_medio,
-        satisfacao: dashboardData.kpis.satisfacao,
+        tempo_medio: dashboardData.kpis.tempo_medio ?? 0,
+        satisfacao: dashboardData.kpis.satisfacao ?? 0,
         acessos: dashboardData.usage.acessos,
         operacoes: dashboardData.usage.operacoes,
       };
     }
-    const support = dashboardData.monthly.find((item) => item.mes === month)!;
-    const usage = dashboardData.usageMonthly.find((item) => item.mes === month)!;
-    return { ...support, ...usage };
-  }, [month]);
+    const support = dashboardData.monthly.find((item) => item.mes === month);
+    const usage = dashboardData.usageMonthly.find((item) => item.mes === month);
+    if (!support || !usage) return null;
+    return {
+      ...support,
+      ...usage,
+      tempo_medio: support.tempo_medio ?? 0,
+      satisfacao: support.satisfacao ?? 0,
+    };
+  }, [dashboardData, month]);
 
-  const attention = dashboardData.risk
+  const attention = dashboardData?.risk
     .filter((item) => item.faixa_atencao !== "Estável")
-    .reduce((sum, item) => sum + item.clientes, 0);
+    .reduce((sum, item) => sum + item.clientes, 0) ?? 0;
+
+  if (!dashboardData || !selected) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6 text-slate-950">
+        <div className="max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+          <Database className="mx-auto mb-3 size-8 text-blue-600" />
+          <h1 className="font-semibold">Carregando dados do painel</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            {dashboardError ?? "Consultando o banco SQLite..."}
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   async function ask(question: string) {
     const prompt = question.trim();
@@ -231,8 +299,8 @@ export default function Home() {
             <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
               <MetricCard label="Chamados" value={formatNumber(selected.chamados)} detail={month === "all" ? "260 resolvidos no período" : `Abertos em ${monthLabels[month]}`} icon={Headphones} />
               <MetricCard label="Pendentes" value={formatNumber(selected.pendentes)} detail={`${formatNumber((selected.pendentes / selected.chamados) * 100, 1)}% dos chamados`} icon={TicketCheck} tone="amber" />
-              <MetricCard label="Tempo médio" value={`${formatNumber(selected.tempo_medio, 1)} min`} detail="Somente chamados resolvidos" icon={Clock3} tone="red" />
-              <MetricCard label="Satisfação" value={`${formatNumber(selected.satisfacao, 2)} / 5`} detail="Avaliações válidas" icon={Star} tone="teal" />
+              <MetricCard label="Tempo médio" value={`${formatNumber(selected.tempo_medio ?? 0, 1)} min`} detail="Somente chamados resolvidos" icon={Clock3} tone="red" />
+              <MetricCard label="Satisfação" value={`${formatNumber(selected.satisfacao ?? 0, 2)} / 5`} detail="Avaliações válidas" icon={Star} tone="teal" />
               <MetricCard label="Acessos" value={formatNumber(selected.acessos)} detail="Uso registrado no período" icon={MousePointerClick} tone="teal" />
               <MetricCard label="Operações" value={formatNumber(selected.operacoes)} detail="Intensidade de uso" icon={BarChart3} />
             </section>
@@ -254,12 +322,12 @@ export default function Home() {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[680px] text-left text-sm">
                     <thead><tr className="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400"><th className="pb-3">Assunto</th><th className="pb-3 text-right">Chamados</th><th className="pb-3 text-right">Pendentes</th><th className="pb-3 text-right">Tempo</th><th className="pb-3 text-right">Notas 1–2</th></tr></thead>
-                    <tbody>{dashboardData.subjects.map((item) => <tr key={item.assunto} className="border-b border-slate-100 last:border-0"><td className="py-3 font-medium">{item.assunto}</td><td className="py-3 text-right">{item.chamados}</td><td className="py-3 text-right font-semibold text-amber-700">{item.pendentes}</td><td className="py-3 text-right">{formatNumber(item.tempo_medio, 1)} min</td><td className="py-3 text-right font-semibold text-rose-600">{formatNumber(item.pct_notas_baixas, 1)}%</td></tr>)}</tbody>
+                    <tbody>{dashboardData.subjects.map((item) => <tr key={item.assunto} className="border-b border-slate-100 last:border-0"><td className="py-3 font-medium">{item.assunto}</td><td className="py-3 text-right">{item.chamados}</td><td className="py-3 text-right font-semibold text-amber-700">{item.pendentes}</td><td className="py-3 text-right">{formatNumber(item.tempo_medio ?? 0, 1)} min</td><td className="py-3 text-right font-semibold text-rose-600">{formatNumber(item.pct_notas_baixas ?? 0, 1)}%</td></tr>)}</tbody>
                   </table>
                 </div>
               </Card>
               <div className="grid gap-4">
-                <Card><SectionTitle eyebrow="Prioridade" title="Tempo médio" /><HorizontalBars data={dashboardData.priorities.map((item) => ({ label: item.prioridade, value: item.tempo_medio, meta: `${item.chamados} chamados · n resolvidos` }))} color={palette.red} suffix=" min" /></Card>
+                <Card><SectionTitle eyebrow="Prioridade" title="Tempo médio" /><HorizontalBars data={dashboardData.priorities.map((item) => ({ label: item.prioridade, value: item.tempo_medio ?? 0, meta: `${item.chamados} chamados · n resolvidos` }))} color={palette.red} suffix=" min" /></Card>
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-5"><p className="text-xs font-bold uppercase tracking-wider text-blue-600">Insight</p><p className="mt-2 text-sm leading-6 text-blue-950">A prioridade Alta leva 27,5 min a mais que a Baixa. Isso sugere revisar triagem e capacidade, sem afirmar causalidade.</p></div>
               </div>
             </section>
@@ -273,7 +341,7 @@ export default function Home() {
             </section>
 
             <section id="analises" className="scroll-mt-24 grid gap-4 lg:grid-cols-3">
-              <Card><SectionTitle eyebrow="Canais" title="Volume de chamados" /><HorizontalBars data={dashboardData.channels.map((item) => ({ label: item.canal, value: item.chamados, meta: `${item.pendentes} pendentes · nota ${formatNumber(item.satisfacao, 2)}` }))} /></Card>
+              <Card><SectionTitle eyebrow="Canais" title="Volume de chamados" /><HorizontalBars data={dashboardData.channels.map((item) => ({ label: item.canal, value: item.chamados, meta: `${item.pendentes} pendentes · nota ${formatNumber(item.satisfacao ?? 0, 2)}` }))} /></Card>
               <Card><SectionTitle eyebrow="Produtos" title="Acessos por serviço" /><HorizontalBars data={dashboardData.services.map((item) => ({ label: item.servico, value: item.acessos, meta: `${item.atendimentos} chamados · ${item.pendentes} pendentes` }))} color={palette.teal} /></Card>
               <Card><SectionTitle eyebrow="Perfil" title="Clientes por setor" /><HorizontalBars data={dashboardData.clientsBySector.map((item) => ({ label: item.setor, value: item.clientes }))} color={palette.cyan} /></Card>
             </section>

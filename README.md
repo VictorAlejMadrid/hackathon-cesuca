@@ -1,114 +1,133 @@
-# Hackathon CESUCA — Radar de Saúde do Cliente
+# Radar de Saúde do Cliente
 
-Aplicação Next.js e base analítica construída com os dados sintéticos do Hackathon Data Cempro 2026. As planilhas de clientes, atendimentos e uso de serviços foram estruturadas em SQLite para alimentar um MVP de Customer Success e Suporte.
+MVP desenvolvido para o Hackathon Data Cempro 2026. O projeto cruza
+atendimentos, cadastro de clientes e uso de serviços para ajudar gestores de
+suporte a identificar clientes que precisam de atenção.
 
-## Solução proposta
+O painel apresenta indicadores mensais, gráficos e uma fila de priorização
+explicável. O score é uma regra de triagem calculada no SQLite: não é previsão
+de churn e não prova causalidade.
 
-O **Radar de Saúde do Cliente** reúne sinais de suporte e utilização para mostrar quais clientes precisam de atenção e por quê. O score é transparente, calculado em SQL e serve como regra de triagem — não como previsão de cancelamento ou prova de causalidade.
+## Pré-requisitos
 
-## Executar a aplicação
+- Node.js 20.9 ou superior;
+- npm;
+- Python 3.10 ou superior, apenas para recriar ou validar o banco;
+- Python `pandas` e `openpyxl`, para importar as planilhas.
 
-```bash
+O banco SQLite já versionado em `output/hackathon_cempro.sqlite` permite
+executar a aplicação sem instalar Python.
+
+## Instalação
+
+Na raiz do projeto:
+
+```powershell
 npm install
+```
+
+Para recriar o banco a partir das planilhas:
+
+```powershell
+python -m pip install pandas openpyxl
+python scripts/importar_sqlite.py
+python scripts/verificar_sqlite.py
+```
+
+O importador lê `data/clientes.xlsx`, `data/atendimentos.xlsx` e
+`data/uso_servicos.xlsx`, recria `output/hackathon_cempro.sqlite` e valida
+chaves, restrições e visões analíticas.
+
+## Execução
+
+### Desenvolvimento
+
+```powershell
 npm run dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000).
 
-## LangChain no servidor
-
-A configuração do LangChain está em [`lib/langchain.ts`](./lib/langchain.ts) e usa
-`ChatGroq`. Para habilitá-la:
-
-1. Copie `.env.example` para `.env.local`;
-2. Preencha `GROQ_API_KEY` com uma chave criada no [console da Groq](https://console.groq.com/keys);
-3. Ajuste `GROQ_MODEL` se necessário. O padrão é `openai/gpt-oss-20b`.
-
-O módulo é marcado como server-only e a chave nunca deve ser prefixada com
-`NEXT_PUBLIC_` nem usada em componentes do cliente.
-
-### Streaming SSE
-
-A rota `POST /stream` recebe `{ "input": "..." }` e transmite a resposta do
-modelo como Server-Sent Events. Cada fragmento vem em
-`data: {"content":"..."}`; o fim do fluxo é sinalizado por `data: [DONE]`.
-
-O agente **LIA — Leitura inteligente de atendimentos** também possui a tool
-server-side `consultar_banco`, que permite
-consultas SQL arbitrárias somente de leitura no SQLite. Apenas uma instrução
-`SELECT` ou `WITH` é aceita; comandos de escrita, múltiplas instruções e
-resultados acima de 100 linhas são bloqueados ou limitados. O caminho do banco
-pode ser alterado com `SQLITE_DB_PATH`; por padrão, usa
-`output/hackathon_cempro.sqlite`.
-
-O agente recebe um prompt de sistema que orienta a consultar o banco conforme o
-pedido do usuário, não inventar dados e evitar afirmações de causalidade.
-
-## Estrutura do banco
-
-- `clientes`: cadastro mestre, com `cliente_id` como chave primária;
-- `atendimentos`: chamados ligados a clientes por chave estrangeira;
-- `uso_servicos`: uso mensal por cliente e serviço, com chave composta;
-- `vw_resumo_servico`: adoção, intensidade de uso e suporte por serviço;
-- `vw_saude_cliente`: fila explicável de priorização de clientes.
-
-O banco pronto está em `output/hackathon_cempro.sqlite` e pode ser aberto diretamente no SQLiteStudio.
-
-## Recriar e validar o banco
-
-Com Python, pandas e openpyxl instalados:
+### Produção local
 
 ```powershell
-python scripts/importar_sqlite.py
-python scripts/verificar_sqlite.py
+npm run build
+npm run start
 ```
 
-O importador valida duplicidades e clientes órfãos, aplica restrições e índices e verifica as chaves estrangeiras. O segundo script confere integridade, acentos, contagens e as consultas de demonstração.
+Os demais comandos disponíveis são:
 
-## Consulta principal
-
-As consultas para o pitch estão em `sql/consultas_demo.sql`. O ranking principal pode ser consultado com:
-
-```sql
-SELECT
-    cliente_id,
-    nome_ficticio,
-    score_atencao,
-    faixa_atencao,
-    atendimentos_pendentes,
-    satisfacao_media
-FROM vw_saude_cliente
-ORDER BY score_atencao DESC
-LIMIT 20;
+```powershell
+npm run lint
 ```
 
-## Conteúdo do projeto
+## Variáveis de ambiente
+
+O dashboard e o fallback offline funcionam sem variáveis de ambiente. O
+assistente com IA exige uma chave da Groq:
 
 ```text
-app/        aplicação web Next.js
-data/       planilhas originais e dicionário de dados
-docs/       proposta, alternativas e roteiro do pitch
-output/     banco SQLite pronto
-scripts/    importador e verificador
-sql/        consultas para o MVP e demonstração
+GROQ_API_KEY=sua-chave
+GROQ_MODEL=openai/gpt-oss-20b
 ```
 
-## Agentes do hackathon
+Salve esses valores em `.env.local`. Nunca use o prefixo `NEXT_PUBLIC_` na
+chave. Para apontar a aplicação a outro banco SQLite, defina também:
 
-O pacote em `agentes-hackathon` foi integrado à raiz para funcionar com Claude Code:
+```text
+SQLITE_DB_PATH=C:\caminho\para\hackathon_cempro.sqlite
+```
 
-- `.claude/agents/`: 7 agentes especializados;
-- `CLAUDE.md`: contexto e regras permanentes do projeto;
-- `dados/`: cópia das planilhas esperada pelos agentes;
-- `docs/01-projeto-perguntas.md` a `docs/04-plano-e-pitch.md`: análise, arquitetura e plano de execução;
-- `docs/agentes-hackathon.md`: instruções originais do pacote.
+Se `GROQ_API_KEY` estiver ausente ou a API estiver indisponível, o chat usa
+respostas de fallback no modo offline. A chave é consumida apenas no servidor.
 
-O fluxo recomendado começa pelo agente `orquestrador`, que delega ETL, API, frontend, chatbot, QA e documentação.
+## Rotas principais
 
-## Limitações
+- `GET /api/dashboard`: retorna os dados agregados do painel;
+- `POST /stream`: recebe `{ "input": "..." }` e transmite a resposta do
+  assistente por Server-Sent Events;
+- `GET /`: interface web do Radar do Gestor.
 
-- dados fictícios;
-- janela de julho a setembro de 2026;
-- correlação não implica causalidade;
-- “operações por acesso” mede intensidade e pode ser maior que 1;
-- o score precisa ser calibrado antes de uso em um negócio real.
+O assistente consulta o SQLite somente com instruções `SELECT` ou `WITH`.
+Comandos de escrita, múltiplas instruções e resultados acima de 100 linhas são
+bloqueados ou limitados.
+
+## Estrutura do projeto
+
+```text
+app/        páginas, layout e rotas da aplicação Next.js
+components/ componentes visuais e gráficos
+data/       planilhas originais e dicionário de dados
+docs/       análise, arquitetura e roteiro do pitch
+lib/        acesso ao SQLite, dados do dashboard e integração com Groq
+output/     banco SQLite pronto para execução
+scripts/    importação e validação do banco
+sql/        consultas usadas na demonstração
+types/      tipos TypeScript dos dados
+```
+
+As tabelas principais são `clientes`, `atendimentos` e `uso_servicos`. As views
+`vw_resumo_servico` e `vw_saude_cliente` consolidam os indicadores usados no
+dashboard.
+
+## Limitações e próximos passos
+
+- os dados são sintéticos e não representam clientes reais;
+- o recorte cobre julho a setembro de 2026, e setembro contém dados somente até
+  29/09;
+- o score é uma heurística de priorização e precisa ser calibrado com dados
+  reais, SLA, cancelamentos e validação do time de negócio;
+- associações entre uso, atendimento, satisfação e score não devem ser
+  interpretadas como causalidade;
+- o banco é local e carregado em modo somente leitura pela aplicação;
+- o assistente depende de acesso à API da Groq para respostas generativas; sem
+  chave ou internet, o fallback offline cobre apenas perguntas e indicadores
+  pré-definidos;
+- não há autenticação, controle de permissões ou atualização automática das
+  planilhas;
+- o próximo passo é automatizar o upload mensal, recalibrar o score e incluir
+  métricas reais de retenção e receita.
+
+Mais detalhes sobre decisões de dados e arquitetura estão em
+[`docs/02-mapeamento-dados.md`](./docs/02-mapeamento-dados.md) e
+[`docs/03-arquitetura.md`](./docs/03-arquitetura.md).
