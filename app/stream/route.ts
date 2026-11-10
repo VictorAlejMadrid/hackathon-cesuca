@@ -1,4 +1,6 @@
 import { getChatModel } from '@/lib/langchain';
+import { consultarBanco } from '@/lib/sqlite-tool';
+import { BaseMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
 
 const encoder = new TextEncoder();
 
@@ -55,6 +57,7 @@ export async function POST(request: Request) {
   }
 
   const prompt = input.trim();
+  const currentDate = new Date().toISOString().slice(0, 10);
   let model;
 
   try {
@@ -69,7 +72,9 @@ export async function POST(request: Request) {
       try {
         const systemPrompt = `Você é o assistente analítico do LIA.
 Responda em português do Brasil, de forma direta, com a conclusão primeiro.
-Use exclusivamente os números do CONTEXTO abaixo. Nunca invente ou recalcule dados ausentes.
+A data atual do servidor é ${currentDate}. Use essa data como referência para perguntas sobre idade ou período.
+Para perguntas sobre chamados com mais de N meses, consulte o banco usando date(data_abertura) < date('${currentDate}', '-N months').
+Use exclusivamente os números do banco ou do CONTEXTO abaixo. Nunca invente ou recalcule dados ausentes.
 Não afirme causalidade: use termos como "associado", "coincide" ou "sugere investigar".
 Quando houver comparação, mencione os valores e a população quando disponível.
 Avise que setembro de 2026 contém dados somente até 29/09 quando a resposta envolver esse mês.
@@ -78,20 +83,28 @@ Se a pergunta não puder ser respondida pelos dados, diga claramente que a infor
 CONTEXTO CALCULADO PELO SQLITE:
 ${context || 'Nenhum contexto fornecido.'}`;
 
-        const chunks = await model.stream(
-          [
-            ['system', systemPrompt],
-            ['human', prompt],
-          ],
-          { signal: request.signal },
-        );
+        const messages: BaseMessage[] = [new SystemMessage(systemPrompt), new HumanMessage(prompt)];
+        let response = await model.invoke(messages, { signal: request.signal });
 
-        for await (const chunk of chunks) {
-          if (request.signal.aborted) {
-            return;
+        for (let attempt = 0; attempt < 3 && response.tool_calls?.length; attempt += 1) {
+          messages.push(response);
+          for (const toolCall of response.tool_calls) {
+            if (toolCall.name !== 'consultar_banco' || typeof toolCall.args.sql !== 'string') {
+              throw new Error('O agente solicitou uma ferramenta inválida.');
+            }
+
+            const result = await consultarBanco.invoke({ sql: toolCall.args.sql });
+            messages.push(new ToolMessage({ content: result, tool_call_id: toolCall.id ?? '' }));
           }
+          response = await model.invoke(messages, { signal: request.signal });
+        }
 
-          const content = contentToString(chunk.content);
+        if (response.tool_calls?.length) {
+          throw new Error('Não foi possível concluir a consulta solicitada.');
+        }
+
+        if (!request.signal.aborted) {
+          const content = contentToString(response.content);
           if (content) {
             controller.enqueue(sseEvent({ content }));
           }

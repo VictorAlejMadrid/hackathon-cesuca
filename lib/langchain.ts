@@ -21,6 +21,7 @@ Relacionamentos e cuidados:
 - Para combinar atendimento e uso, agregue primeiro por cliente e mês; não faça uma junção direta das tabelas sem agregação, pois isso pode duplicar linhas e inflar números.
 - Atendimentos pendentes possuem tempo_resolucao_min e satisfacao_1_a_5 nulos; médias de tempo e satisfação consideram apenas atendimentos resolvidos.
 - Para filtrar atendimentos por mês, use substr(data_abertura, 1, 7) = 'AAAA-MM'. Para uso, filtre diretamente pela coluna mes.
+- Para contar chamados com mais de N meses, use date(data_abertura) < date('DATA_ATUAL', '-N months'), substituindo DATA_ATUAL pela data atual informada no contexto da conversa. Se o usuário pedir apenas pendentes, filtre também status = 'Pendente'.
 - Ao calcular taxas, use NULLIF para evitar divisão por zero.
 
 Regras:
