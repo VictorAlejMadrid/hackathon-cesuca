@@ -147,6 +147,7 @@ export default function Home() {
     if (month === "all") {
       return {
         chamados: dashboardData.kpis.chamados,
+        resolvidos: dashboardData.kpis.resolvidos,
         pendentes: dashboardData.kpis.pendentes,
         tempo_medio: dashboardData.kpis.tempo_medio ?? 0,
         satisfacao: dashboardData.kpis.satisfacao ?? 0,
@@ -168,6 +169,19 @@ export default function Home() {
   const attention = dashboardData?.risk
     .filter((item) => item.faixa_atencao !== "Estável")
     .reduce((sum, item) => sum + item.clientes, 0) ?? 0;
+  const priorityInsight = useMemo(() => {
+    if (!dashboardData) return null;
+    const high = dashboardData.priorities.find((item) => item.prioridade === "Alta");
+    const low = dashboardData.priorities.find((item) => item.prioridade === "Baixa");
+    if (!high?.tempo_medio || !low?.tempo_medio) return null;
+    const difference = high.tempo_medio - low.tempo_medio;
+    return {
+      direction: difference >= 0 ? "mais" : "menos",
+      difference: Math.abs(difference),
+      high: high.tempo_medio,
+      low: low.tempo_medio,
+    };
+  }, [dashboardData]);
 
   if (!dashboardData || !selected) {
     return (
@@ -297,7 +311,7 @@ export default function Home() {
             ) : null}
 
             <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-              <MetricCard label="Chamados" value={formatNumber(selected.chamados)} detail={month === "all" ? "260 resolvidos no período" : `Abertos em ${monthLabels[month]}`} icon={Headphones} />
+              <MetricCard label="Chamados" value={formatNumber(selected.chamados)} detail={month === "all" ? `${formatNumber(selected.resolvidos)} resolvidos no período` : `${formatNumber(selected.resolvidos)} resolvidos em ${monthLabels[month]}`} icon={Headphones} />
               <MetricCard label="Pendentes" value={formatNumber(selected.pendentes)} detail={`${formatNumber((selected.pendentes / selected.chamados) * 100, 1)}% dos chamados`} icon={TicketCheck} tone="amber" />
               <MetricCard label="Tempo médio" value={`${formatNumber(selected.tempo_medio ?? 0, 1)} min`} detail="Somente chamados resolvidos" icon={Clock3} tone="red" />
               <MetricCard label="Satisfação" value={`${formatNumber(selected.satisfacao ?? 0, 2)} / 5`} detail="Avaliações válidas" icon={Star} tone="teal" />
@@ -328,14 +342,14 @@ export default function Home() {
               </Card>
               <div className="grid gap-4">
                 <Card><SectionTitle eyebrow="Prioridade" title="Tempo médio" /><HorizontalBars data={dashboardData.priorities.map((item) => ({ label: item.prioridade, value: item.tempo_medio ?? 0, meta: `${item.chamados} chamados · n resolvidos` }))} color={palette.red} suffix=" min" /></Card>
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-5"><p className="text-xs font-bold uppercase tracking-wider text-blue-600">Insight</p><p className="mt-2 text-sm leading-6 text-blue-950">A prioridade Alta leva 27,5 min a mais que a Baixa. Isso sugere revisar triagem e capacidade, sem afirmar causalidade.</p></div>
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-5"><p className="text-xs font-bold uppercase tracking-wider text-blue-600">Insight</p><p className="mt-2 text-sm leading-6 text-blue-950">{priorityInsight ? `A prioridade Alta leva ${formatNumber(priorityInsight.difference, 1)} min ${priorityInsight.direction} que a Baixa (${formatNumber(priorityInsight.high, 1)} contra ${formatNumber(priorityInsight.low, 1)}). Isso sugere revisar triagem e capacidade, sem afirmar causalidade.` : "Não há dados suficientes para comparar as prioridades."}</p></div>
               </div>
             </section>
 
             <section id="clientes" className="scroll-mt-24 grid gap-4 xl:grid-cols-[0.65fr_1.35fr]">
               <Card><SectionTitle eyebrow="Carteira" title="Faixas de atenção" description="Score de triagem, não previsão de churn." /><DonutChart data={dashboardData.risk.map((item) => ({ label: item.faixa_atencao, value: item.clientes, color: item.faixa_atencao === "Crítico" ? palette.red : item.faixa_atencao === "Atenção" ? palette.amber : palette.teal }))} /><p className="mt-6 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-500">{attention} clientes exigem revisão. O score combina pendências, satisfação, tempo e uso.</p></Card>
               <Card>
-                <div className="mb-5 flex items-center justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">Ação</p><h2 className="text-xl font-semibold">Clientes prioritários</h2></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">5 críticos</span></div>
+                <div className="mb-5 flex items-center justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">Ação</p><h2 className="text-xl font-semibold">Clientes prioritários</h2></div><span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">{dashboardData.criticalClients.clientes} críticos</span></div>
                 <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead><tr className="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400"><th className="pb-3">Cliente</th><th className="pb-3">Perfil</th><th className="pb-3 text-right">Score</th><th className="pb-3 text-right">Pendentes</th><th className="pb-3 text-right">Satisfação</th></tr></thead><tbody>{dashboardData.topRisk.slice(0, 8).map((client) => <tr key={client.cliente_id} className="border-b border-slate-100 last:border-0"><td className="py-3"><p className="font-semibold">{client.nome_ficticio}</p><p className="text-[11px] text-slate-400">{client.cliente_id} · {client.cidade}</p></td><td className="py-3 text-xs text-slate-500">{client.porte}<br />{client.setor}</td><td className="py-3 text-right"><span className={`rounded-full px-2.5 py-1 font-bold ${client.faixa_atencao === "Crítico" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"}`}>{client.score_atencao}</span></td><td className="py-3 text-right font-semibold">{client.atendimentos_pendentes}</td><td className="py-3 text-right font-semibold">{client.satisfacao_media ? formatNumber(client.satisfacao_media, 2) : "—"}</td></tr>)}</tbody></table></div>
               </Card>
             </section>

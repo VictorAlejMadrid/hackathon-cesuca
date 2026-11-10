@@ -2,6 +2,7 @@ export type DashboardData = {
   monthly: Array<{
     mes: string;
     chamados: number;
+    resolvidos: number;
     pendentes: number;
     tempo_medio: number | null;
     satisfacao: number | null;
@@ -61,6 +62,7 @@ export type DashboardData = {
   }>;
   kpis: {
     chamados: number;
+    resolvidos: number;
     pendentes: number;
     tempo_medio: number | null;
     satisfacao: number | null;
@@ -68,5 +70,8 @@ export type DashboardData = {
   usage: {
     acessos: number;
     operacoes: number;
+  };
+  criticalClients: {
+    clientes: number;
   };
 };

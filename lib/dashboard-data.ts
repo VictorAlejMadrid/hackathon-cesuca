@@ -20,6 +20,7 @@ export function getDashboardData(): DashboardData {
       SELECT
         substr(data_abertura, 1, 7) AS mes,
         COUNT(*) AS chamados,
+        SUM(status = 'Resolvido') AS resolvidos,
         SUM(status = 'Pendente') AS pendentes,
         ROUND(AVG(tempo_resolucao_min), 1) AS tempo_medio,
         ROUND(AVG(satisfacao_1_a_5), 2) AS satisfacao
@@ -90,10 +91,16 @@ export function getDashboardData(): DashboardData {
     kpis: one(database, `
       SELECT
         COUNT(*) AS chamados,
+        SUM(status = 'Resolvido') AS resolvidos,
         SUM(status = 'Pendente') AS pendentes,
         ROUND(AVG(tempo_resolucao_min), 1) AS tempo_medio,
         ROUND(AVG(satisfacao_1_a_5), 2) AS satisfacao
       FROM atendimentos
+    `),
+    criticalClients: one(database, `
+      SELECT COUNT(*) AS clientes
+      FROM vw_saude_cliente
+      WHERE faixa_atencao = 'Crítico'
     `),
     usage: one(database, `
       SELECT SUM(acessos) AS acessos, SUM(operacoes_realizadas) AS operacoes
